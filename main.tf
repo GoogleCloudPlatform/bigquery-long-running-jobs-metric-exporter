@@ -33,7 +33,7 @@ module "long-running-jobs" {
   }
 
   # The duration queries should be running for before the alert is triggered
-  job_duration_alert_threshold_minutes = 30
+  job_duration_alert_threshold_minutes = 20
 
   # By default, queries for long running jobs are performed in the project that is being
   # queried. For example if two projects "project-a" and "project-b" are being monitored,

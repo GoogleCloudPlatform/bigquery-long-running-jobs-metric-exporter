@@ -44,11 +44,11 @@ variable "master_metrics_project" {
 
 variable "long_running_job_polling_period" {
   description = "The period in which the Workflow should execute in Cron format"
-  default = "*/5 * * * *"
+  default     = "*/5 * * * *"
 }
 
 variable "job_duration_alert_threshold_minutes" {
   description = "How long should jobs be running for before the alert is triggered (minutes)"
-  type = number
-  default = 30
+  type        = number
+  default     = 30
 }

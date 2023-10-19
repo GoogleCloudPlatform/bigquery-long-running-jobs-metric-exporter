@@ -67,7 +67,7 @@ main:
                                     configuration:
                                       query:
                                         useLegacySql: false
-                                        query: ${"SELECT job_id FROM `" + project + "`.`region-" + region + "`.INFORMATION_SCHEMA.JOBS_BY_PROJECT WHERE state!=\"DONE\" AND creation_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL " + args.config.jobDurationAlertThreshold + " MINUTE)"}
+                                        query: ${"SELECT job_id FROM `" + project + "`.`region-" + region + "`.INFORMATION_SCHEMA.JOBS_BY_PROJECT WHERE state!=\"DONE\" AND creation_time <= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL " + args.config.jobDurationAlertThreshold + " MINUTE)"}
                                         location: ${region}
                                 result: query
                             # Get the results from the query

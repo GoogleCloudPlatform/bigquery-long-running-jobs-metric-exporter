@@ -48,26 +48,24 @@ resource "google_cloud_scheduler_job" "long_running_jobs_workflow_invoker" {
   http_target {
     http_method = "POST"
     uri         = "https://workflowexecutions.googleapis.com/v1/projects/${google_workflows_workflow.long_running_jobs.project}/locations/${google_workflows_workflow.long_running_jobs.region}/workflows/${google_workflows_workflow.long_running_jobs.name}/executions"
-    headers = {
-      "Content-Type": "application/octet-stream"
-      "User-Agent": "Google-Cloud-Scheduler"
-    }
     body = base64encode(jsonencode({
       argument = jsonencode({
         targets : var.monitored_projects_and_regions,
         config = {
           "masterQueryProject" : var.master_query_project == "" ? null : var.master_query_project,
           "masterMetricProject" : var.master_metrics_project == "" ? null : var.master_metrics_project,
-          "jobDurationAlertThreshold": tostring(var.job_duration_alert_threshold_minutes)
+          "jobDurationAlertThreshold" : tostring(var.job_duration_alert_threshold_minutes)
         }
       })
-      "callLogLevel": "CALL_LOG_LEVEL_UNSPECIFIED"
+      "callLogLevel" : "CALL_LOG_LEVEL_UNSPECIFIED"
     }))
 
     oauth_token {
       service_account_email = google_service_account.long_running_jobs_workflow_invoker.email
     }
   }
+
+
 
 
 

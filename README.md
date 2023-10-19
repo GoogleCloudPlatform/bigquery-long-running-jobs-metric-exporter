@@ -75,7 +75,7 @@ In some scenarios, it may be desired to write metrics from multiple monitored pr
 
 ## Permissions
 
-All queries, and metric writes are performed by a Service Account specifically created for the Cloud Workflow (`long-running-jobs-workflow@<projectID.iam.gserviceaccount.com`). Consequently, this Service Account needs some basic permissions:
+All queries, and metric writes are performed by a Service Account specifically created for the Cloud Workflow (`long-running-jobs-workflow@<projectID>.iam.gserviceaccount.com`). Consequently, this Service Account needs some basic permissions:
 
 1. `roles/bigquery.resourceViewer` - Required in every project being monitored for long running jobs. This provides access to the `INFORMATION_SCHEMA` tables
 2. `roles/bigquery.jobUser` - Required in every project being monitored, unless `master_query_project` is set (in which case it is only required there). This allows the Workflow to run queries.
