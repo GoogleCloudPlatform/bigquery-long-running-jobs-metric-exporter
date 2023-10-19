@@ -1,14 +1,20 @@
 # bigquery-long-running-jobs-metric-exporter
 
-This repository contains a [Google Cloud Workflow](https://cloud.google.com/workflows?hl=en) that exports a count of long running BigQuery queries into Google [Cloud Monitoring](https://cloud.google.com/monitoring?hl=en) as a [user-defined metric](https://cloud.google.com/monitoring/custom-metrics).
+This repository contains a Google Cloud Workflow that monitors and exports a custom metric into Google Cloud Monitoring for "long running jobs". The definition of a long running job is configurable. A job is defined as long running if it is still running at the point the Workflow executes, and it has been running for longer than the defined threshold.
 
-The monitored projects, and BigQuery regions are configurable, alongside the query duration that constitutes "long running". Once deployed, this Workflow exports a custom GAUGE metric `custom.googleapis.com/bigquery/long_running_jobs` labelled with the project ID and BigQuery region with the count of long running queries.
+This Workflow can handle monitoring BigQuery jobs in multiple projects, and multiple regions, each of which can be easily configured.
 
-You are then able to use the standard Google Cloud Monitoring tool set such as alerting, and dashboarding to monitor these queries.
+Once deployed, this Workflow exports a custom GAUGE metric `custom.googleapis.com/bigquery/long_running_jobs` labelled with the project ID and BigQuery region with the count of long running jobs.
+
+You are then able to use the standard Google Cloud Monitoring tool set such as alerting, and dashboarding to monitor these jobs.
 
 ## How it works
 
-The Workflow is invoked by Cloud Scheduler, with a payload containing the configuration. An example payload is as follows:
+The Workflow is invoked by Cloud Scheduler, by default it will be invoked every 5 minutes (but this is configurable).
+
+Cloud Scheduler invokes the Workflow with a payload containing information on the project ID's, and BigQuery regions to monitor for long running jobs, alongside some other configuration.
+
+An example of the payload is shown below:
 
 ```
 {
@@ -30,9 +36,11 @@ The Workflow is invoked by Cloud Scheduler, with a payload containing the config
 }
 ```
 
-The Workflow iterates through all of the keys (Project ID's) in `.targets` - for each target (project ID) it then iterates through each of the array items (BigQuery regions).
+When the Workflow executes (triggered by Cloud Scheduler), it iterates through all of the keys (Project ID's) in `.targets`.
 
-For each provided project and region, the Workflow runs a BigQuery query to report on outstanding jobs that are still running:
+For each Project ID, there is then a sub-iteration, which loops through each of the array items (BigQuery regions).
+
+For each Project and BigQuery region, the Workflow executes the following query:
 
 ```
 SELECT job_id FROM `<PROJECT_ID>`.`region-<REGION_ID>`.INFORMATION_SCHEMA.JOBS_BY_PROJECT WHERE state!=\"DONE\" AND creation_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL <CONFIGURED_INTERVAL> MINUTE)
@@ -42,7 +50,7 @@ The number of rows returned by this query is then written as a metric into Googl
 
 ## Where are queries performed, and where are metrics stored?
 
-By default, the Workflow runs the outstanding jobs query in the project that is being queried for running jobs.
+By default, the Workflow runs the outstanding jobs query in the project that is being queried for outstanding jobs.
 
 ```
 "targets": {
@@ -57,7 +65,7 @@ By default, the Workflow runs the outstanding jobs query in the project that is 
 }
 ```
 
-For example, with the above configuration the query for outstanding jobs in `bigquery-project-1` will be ran in `bigquery-project-1`, and the query for outstanding jobs in `bigquery-project-2` will be ran in `bigquery-project-2`.
+For example, with the above configuration the query for outstanding jobs in `bigquery-project-1` will be executed in `bigquery-project-1`, and the query for outstanding jobs in `bigquery-project-2` will be executed in `bigquery-project-2`.
 
 In some scenarios, it may be desired to execute the queries all from a single project. This can be easily configured by configuring the `master_query_project` variable in module definition shown in the [Deployment](#deployment) section. When this variable is set, all queries will be executed from the project defined in `master_query_project`.
 
@@ -75,12 +83,11 @@ All queries, and metric writes are performed by a Service Account specifically c
 
 **Terraform handles all of these permissions automatically, including dynamically creating the required permissions depending on whether `master_query_project`/`master_metrics_project` is set.**
 
-
 ## Deployment
 
-This repository contains a Terraform Module that automatically deploys all of the required Google Cloud components to setup this metric. The module:
+All of the configuration and deployment of this Workflow is handled automatically using Terraform.
 
-You can import the module to an existing Terraform configuration, or define it in a standalone configuration.
+You can import the module in this repository into to an existing Terraform configuration, or define it in a standalone configuration.
 
 The configuration variables are documented inline below:
 
@@ -127,8 +134,6 @@ module "long-running-jobs" {
   # How often should a query be made for Long Running Jobs? This should be in Crontab format and
   # defaults to every 5 minutes
   query_schedule = "*/5 * * * *"
-
-
 
 }
 ```
