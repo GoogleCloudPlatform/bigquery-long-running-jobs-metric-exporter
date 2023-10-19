@@ -21,7 +21,7 @@ An example of the payload is shown below:
   "config": {
     "masterMetricProject": null,
     "masterQueryProject": null,
-    "queryDurationAlertThreshold": "30"
+    "jobDurationAlertThreshold": "30"
   },
   "targets": {
     "bigquery-project-1": [
@@ -111,7 +111,7 @@ module "long-running-jobs" {
   }
 
   # The duration queries should be running for before the alert is triggered
-  query_duration_alert_threshold_minutes = 30
+  job_duration_alert_threshold_minutes = 30
 
   # By default, queries for long running jobs are performed in the project that is being
   # queried. For example if two projects "project-a" and "project-b" are being monitored,
@@ -133,7 +133,7 @@ module "long-running-jobs" {
 
   # How often should a query be made for Long Running Jobs? This should be in Crontab format and
   # defaults to every 5 minutes
-  query_schedule = "*/5 * * * *"
+  long_running_job_polling_period = "*/5 * * * *"
 
 }
 ```

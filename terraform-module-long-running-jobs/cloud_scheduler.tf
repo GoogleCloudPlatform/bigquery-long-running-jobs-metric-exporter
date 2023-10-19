@@ -39,7 +39,7 @@ resource "google_cloud_scheduler_job" "long_running_jobs_workflow_invoker" {
 
   name        = "long-running-jobs-workflow-invoker"
   description = "Cloud Scheduler Invoker for the Long Running Jobs Workflow"
-  schedule    = var.query_schedule
+  schedule    = var.long_running_job_polling_period
   project     = var.workflow_deployment_project
   region      = var.workflow_deployment_region
 
@@ -58,7 +58,7 @@ resource "google_cloud_scheduler_job" "long_running_jobs_workflow_invoker" {
         config = {
           "masterQueryProject" : var.master_query_project == "" ? null : var.master_query_project,
           "masterMetricProject" : var.master_metrics_project == "" ? null : var.master_metrics_project,
-          "queryDurationAlertThreshold": tostring(var.query_duration_alert_threshold_minutes)
+          "jobDurationAlertThreshold": tostring(var.job_duration_alert_threshold_minutes)
         }
       })
       "callLogLevel": "CALL_LOG_LEVEL_UNSPECIFIED"

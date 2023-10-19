@@ -42,13 +42,13 @@ variable "master_metrics_project" {
   default     = ""
 }
 
-variable "query_schedule" {
-  description = "The schedule to query long running jobs and report them into metrics in crontab format"
+variable "long_running_job_polling_period" {
+  description = "The period in which the Workflow should execute in Cron format"
   default = "*/5 * * * *"
 }
 
-variable "query_duration_alert_threshold_minutes" {
-  description = "How long should queries be running for before the alert is triggered (minutes)"
+variable "job_duration_alert_threshold_minutes" {
+  description = "How long should jobs be running for before the alert is triggered (minutes)"
   type = number
   default = 30
 }
